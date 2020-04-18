@@ -24,13 +24,11 @@ def print_blockchain_history():
 
 
 def verify_chain():
-    block_index - 0
     is_valid = True
-    for block in blockchain:
+    for block_index in range(len(blockchain)):
         if block_index == 0:
-            block_index += 1
             continue
-        if block[0] == blockchain[block_index - 1]
+        if blockchain[block_index[0]] == blockchain[block_index - 1]
         is_valid = True
         else:
             is_valid = False
@@ -39,7 +37,8 @@ def verify_chain():
     return True
 
 
-while True:
+waiting_for_input = True
+while waiting_for_input:
     print('1: transaction')
     print('2: history')
     print('3: manipulate chain')
@@ -54,7 +53,7 @@ while True:
         if len(blockchain) > = 1:
             blockchain[0] = [2]
     elif user_choice == 'q':
-        break
+        waiting_for_input = False
     else:
         print("input invalid")
     if not verify_chain():
