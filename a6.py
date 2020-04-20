@@ -49,4 +49,3 @@ while waiting_for_input:
         user_input()
     elif user_choice == 'q':
         waiting_for_input = False
-
