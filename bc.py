@@ -1,3 +1,5 @@
+import functools
+
 MINING_REWARD = 10
 genesis_block = {
     'previous_hash': '',
@@ -21,16 +23,12 @@ def get_balances(participant):
     open_tx_sender = [tx['amount']
                       for tx in open_transactions if tx['sender'] == participant]
     tx_sender.append(open_tx_sender)
-    amount_sent = 0
-    for tx in tx_sender:
-        amount_sent += tx[0]
-    return amount_sent
+    amount_sent = functools.reduce(
+        lambda acc, cur: acc + cur[0] if len(cur) > 0 else 0, tx_sender, 0)
     tx_recipient = [[tx['amount'] for tx in block['transactions']
                      if tx['recipient'] == participant] for block in blockchain]
-    amount_recieved = 0
-    for tx in tx_recipient:
-        if len(tx) > 0:
-            amount_recieved += tx[0]
+    amount_recieved = functools.reduce(
+        lambda acc, cur: acc + cur[0] if len(cur) > 0 else 0, tx_recipient, 0)
     return amount_recieved - amount_sent
 
 
@@ -75,9 +73,9 @@ def mine_block():
 
 
 def get_transaction_value():
-    tx_recipeient = input('Enter sender of txn:')
+    tx_recipient = input('Enter sender of txn:')
     tx_amount = float(input('Enter txn amount'))
-    return (tx_recipeient, tx_amount)
+    return (tx_recipient, tx_amount)
 
 
 def get_user_choice():
