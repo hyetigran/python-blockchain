@@ -15,5 +15,10 @@ def plus_two(fn, *args):
         print(fn(arg)+2)
 
 
-# 4) Format the output of your “normal” function such that numbers look nice and are centered in a 20 character column.
 plus_two(lambda x: x*2, 1, 2, 3, 4, 5, 6)
+# 4) Format the output of your “normal” function such that numbers look nice and are centered in a 20 character column.
+
+
+def plus_three(fn, *args):
+    for arg in args:
+        print(f"Result: {:^20.2f}".format(fn(arg)+2))
