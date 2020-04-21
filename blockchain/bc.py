@@ -1,10 +1,9 @@
 from functools import reduce
-import hashlib as hl
 import json
-from hash_util import hash_string_256, hash_block
-import pickle
 from block import Block
-from verification import Verification
+from transaction import Transaction
+from utility.hash_util import hash_block
+from utility.verification import Verification
 
 MINING_REWARD = 10
 
@@ -44,7 +43,7 @@ class Blockchain:
                 self.__chain = updated_blockchain
                 self.__open_transactions = json.loads(file_content[1])
                 updated_transactions = []
-                for tx in open_transactions:
+                for tx in self.__open_transactions:
                     updated_tx = Transaction(
                         tx['sender'], tx['recipient'], tx['amount'])
                     # updated_tx = [OrderedDict(
@@ -92,7 +91,7 @@ class Blockchain:
         tx_sender = [[tx.amount for tx in block.transactions
                       if tx.sender == participant] for block in self.__chain]
         open_tx_sender = [tx.amount
-                          for tx in open_transactions if tx.sender == participant]
+                          for tx in self.__open_transactions if tx.sender == participant]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(
             lambda acc, cur: acc + sum(cur) if len(cur) > 0 else acc + 0, tx_sender, 0)
@@ -108,6 +107,8 @@ class Blockchain:
         return self.__chain[-1]
 
     def add_transaction(self, recipient, sender, amount=1.0,):
+        if self.hosting_node == None:
+            return False
         # transaction = {"sender": sender, 'recipient': recipient, "amount": amount}
         transaction = Transaction(sender, recipient, amount)
         # transaction = OrderedDict(
@@ -119,9 +120,11 @@ class Blockchain:
         return False
 
     def mine_block(self):
+        if self.hosting_node == None:
+            return False
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
-        proof = proof_of_work()
+        proof = self.proof_of_work()
         # reward_transaction = {
         #     'sender': 'MINING',
         #     'recipient': owner,
@@ -133,7 +136,7 @@ class Blockchain:
         #     [('sender', 'MINING'), ('recipient', owner), ('amount', MINING_REWARD)])
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
-        block = Block(len(self.__chain), hash_block,
+        block = Block(len(self.__chain), hashed_block,
                       copied_transactions, proof)
         self.__chain.append(block)
         self.__open_transactions = []
