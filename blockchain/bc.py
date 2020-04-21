@@ -4,7 +4,7 @@ from block import Block
 from transaction import Transaction
 from utility.hash_util import hash_block
 from utility.verification import Verification
-
+from wallet import Wallet
 MINING_REWARD = 10
 
 
@@ -86,7 +86,7 @@ class Blockchain:
             proof += 1
         return proof
 
-    def get_balances(self):
+    def get_balance(self):
         participant = self.hosting_node
         tx_sender = [[tx.amount for tx in block.transactions
                       if tx.sender == participant] for block in self.__chain]
@@ -106,11 +106,11 @@ class Blockchain:
             return None
         return self.__chain[-1]
 
-    def add_transaction(self, recipient, sender, amount=1.0,):
+    def add_transaction(self, recipient, sender, signature, amount=1.0):
         if self.hosting_node == None:
             return False
         # transaction = {"sender": sender, 'recipient': recipient, "amount": amount}
-        transaction = Transaction(sender, recipient, amount)
+        transaction = Transaction(sender, recipient, signature, amount)
         # transaction = OrderedDict(
         #     [('sender', sender), ('recipient', recipient), ('amount', amount)])
         if Verification.verify_transaction(transaction, self.get_balance):
@@ -131,10 +131,13 @@ class Blockchain:
         #     'amount': MINING_REWARD
         # }
         reward_transaction = Transaction(
-            "Mining", self.hosting_node, MINING_REWARD)
+            "Mining", self.hosting_node, '', MINING_REWARD)
         # reward_transaction = OrderedDict(
         #     [('sender', 'MINING'), ('recipient', owner), ('amount', MINING_REWARD)])
         copied_transactions = self.__open_transactions[:]
+        for tx in copied_transactions:
+            if not Wallet.verify_transaction(tx):
+                return False
         copied_transactions.append(reward_transaction)
         block = Block(len(self.__chain), hashed_block,
                       copied_transactions, proof)
